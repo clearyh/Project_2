@@ -2,6 +2,8 @@
 Project 2 for ECE-218 W24 at Union College
 Harmon Cleary and Papa Ndiaye
 
+Code used to create an automatic headlight control system. Using a combination of external and internal components from the Nucleo-f429zi board, the electronics of a car were mimicked. The code operates these components to mimic a conditional car-ignition system, low beams, high beams with an independent switch, and a headlight setting dial. The headlights can be set to three settings: On, Off, or Auto. If the Auto setting is used a light sensor is used to determine the headlight behavior.
+
 SUMMARY OF TEST RESULTS:
 IGNITION SUBSYSTEM
 Specification
