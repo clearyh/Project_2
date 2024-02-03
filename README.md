@@ -8,9 +8,6 @@ SUMMARY OF TEST RESULTS:
 
 IGNITION SUBSYSTEM
 
-Specification
-Test Result
-
 Start the engine (i.e., light the blue LED) while the driver’s seat is occupied and when the ignition button is pushed and then released.
 Pass
 
@@ -21,7 +18,6 @@ Pass
 
 When the engine is running, stop the engine when the ignition button is pushed (i.e., before the button is released).
 Pass
-
 
 
 
