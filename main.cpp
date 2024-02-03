@@ -4,7 +4,7 @@
 #include "arm_book_lib.h"
 
 //=====[Defines]===============================================================
-
+//TH refers to threshold in relation to LDR sensor or potentiometer analaog input
 #define DAY_TH    0.70
 #define DSK_TH    0.25
 #define LDR_HYST   0.1
@@ -13,7 +13,6 @@
 #define HL_HYST    0.1
 #define DELAY_MS    10
 #define DEBOUNCE_MS 50
-#define HB_ON      0.9
 
 //=====[Declaration of public data types]======================================
 
@@ -95,33 +94,33 @@ void outputsInit()
 {
     engine.write(OFF);
     lowBeam.write(ON);
-    highBeam.write(ON);
+    highBeam.write(ON);//highBeam and lowBeam LEDs both use active low input
 }
 
 void delayAccumulate() {
     delay(DELAY_MS);
     debounce_accumulated_time_ms += 10;
-    headlight_accumulated_time_ms += 10;
+    headlight_accumulated_time_ms += 10;//using repeat increments of 10ms prevents unresponsive system
 }
 
 void HLModeUpdate() {
-    float f = potentiometer.read();
+    float f = potentiometer.read();//f tells us position of potentiometer which is used in determining headlightMode
     if (headlightMode == HL_OFF) {
         if (f > HL_OFF_TH + HL_HYST) {
-            headlightMode = HL_AUTO;
+            headlightMode = HL_AUTO;//Only one possible to transition to Auto mode
         }
         return;
     }
-    if (headlightMode == HL_AUTO) {
+    if (headlightMode == HL_AUTO) {//Auto mode is between OFF and ON mode, so two possible transitions are present
         if (f < HL_OFF_TH) {
-            headlightMode = HL_OFF;
+            headlightMode = HL_OFF;//First possible transition to OFF mode
         }
         if (f > HL_ON_TH) {
-            headlightMode = HL_ON;
+            headlightMode = HL_ON;//Second possible transition to ON mode
         }
         return;
     }
-    if (headlightMode == HL_ON) {
+    if (headlightMode == HL_ON) {//Only one possible to transition to Auto mode
         if (f < HL_ON_TH - HL_HYST) {
             headlightMode = HL_AUTO;
         }
@@ -140,7 +139,7 @@ void ignitionStateUpdate () {
         ignitionState = B_FALLING;
         debounce_accumulated_time_ms = 0;
     }
-    if ((ignitionState == B_RISING) && (debounce_accumulated_time_ms >= DEBOUNCE_MS)) {
+    if ((ignitionState == B_RISING) && (debounce_accumulated_time_ms >= DEBOUNCE_MS)) {//Prevents a bouncing button sending multiple input signals upon one input press
         if (ig == ON) {
             ignitionState = B_ON;
         }
@@ -154,7 +153,7 @@ void ignitionStateUpdate () {
         }
         else {
             ignitionState = B_OFF;
-            if (ds == ON && engine == OFF) {
+            if (ds == ON && engine == OFF) {//engine state update only occurs after button release
                 engine.write(ON);
                 return;
             }
@@ -179,10 +178,10 @@ void headlightUpdate() {
             lowBeam.write(OFF);
         }
         if (headlightMode == HL_AUTO) {
-            if (headlight_accumulated_time_ms == 1000 && LDRState == L_DUSK) {
+            if (headlight_accumulated_time_ms == 1000 && LDRState == L_DUSK) {//LED only turns ON after a 1s delay
                 lowBeam.write(OFF);
             }
-            if (headlight_accumulated_time_ms == 2000 && LDRState == L_DAY) {
+            if (headlight_accumulated_time_ms == 2000 && LDRState == L_DAY) {//LED only turns OFF after a 2s delay
                 lowBeam.write(ON);
             }
         }
@@ -197,7 +196,7 @@ void LDRStateUpdate() {
         }
         return;
     }
-    if (LDRState == L_BETWEEN) {
+    if (LDRState == L_BETWEEN) {//L_BETWEEN state is used to help determine future LED behavior
         if (f < DSK_TH) {
             LDRState = L_DUSK;
             headlight_accumulated_time_ms = 0;
@@ -208,7 +207,7 @@ void LDRStateUpdate() {
         }
         return;
     }
-    if (LDRState == L_DAY) {
+    if (LDRState == L_DAY) {//LDRState initialises at L_DAY
         if (f < DAY_TH - LDR_HYST) {
             LDRState = L_BETWEEN;
         }
@@ -218,7 +217,7 @@ void LDRStateUpdate() {
 
 void highBeamUpdate()
 {
-    if (highBeamSwitch.read() == ON || engine == OFF) {
+    if (highBeamSwitch.read() == ON || engine == OFF) {//reading from two-position switch using digital input
     highBeam = ON;
     }
     else
